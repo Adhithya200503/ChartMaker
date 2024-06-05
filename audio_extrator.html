@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video to Audio Converter</title>
+</head>
+<body>
+  <input type="file" id="videoInput" accept="video/*" />
+  <button id="convertButton" disabled>Convert to Audio</button>
+  <audio id="audioPlayer" controls></audio>
+
+  <script>
+    const videoInput = document.getElementById('videoInput');
+    const convertButton = document.getElementById('convertButton');
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    videoInput.addEventListener('change', async () => {
+      convertButton.disabled = false;
+    });
+
+    convertButton.addEventListener('click', async () => {
+      const videoFile = videoInput.files[0];
+      if (!videoFile) return;
+
+      const formData = new FormData();
+      formData.append('file', videoFile);
+      formData.append('resource_type', 'video');
+      formData.append('upload_preset', 'YOUR_UPLOAD_PRESET'); // Replace with your Cloudinary upload preset
+
+      try {
+        const response = await fetch('https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/video/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        const audioUrl = data.eager[0].secure_url;
+
+        audioPlayer.src = audioUrl;
+        audioPlayer.play();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  </script>
+</body>
+</html>
